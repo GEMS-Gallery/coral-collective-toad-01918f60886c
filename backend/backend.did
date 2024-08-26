@@ -1,0 +1,35 @@
+type Todo = 
+ record {
+   completed: bool;
+   createdAt: Time;
+   id: nat;
+   title: text;
+ };
+type Time = int;
+type Note = 
+ record {
+   categoryId: opt nat;
+   content: text;
+   createdAt: Time;
+   id: nat;
+   title: text;
+ };
+type Category = 
+ record {
+   id: nat;
+   name: text;
+ };
+service : {
+  createCategory: (text) -> (nat);
+  createNote: (text, text, opt nat) -> (nat);
+  createTodo: (text, bool) -> (nat);
+  deleteCategory: (nat) -> (bool);
+  deleteNote: (nat) -> (bool);
+  deleteTodo: (nat) -> (bool);
+  getCategories: () -> (vec Category) query;
+  getNotes: () -> (vec Note) query;
+  getTodos: () -> (vec Todo) query;
+  updateCategory: (nat, text) -> (bool);
+  updateNote: (nat, text, text, opt nat) -> (bool);
+  updateTodo: (nat, text, bool) -> (bool);
+}
