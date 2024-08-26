@@ -10,6 +10,10 @@ export interface Note {
   'content' : string,
   'createdAt' : Time,
 }
+export type Result = { 'ok' : boolean } |
+  { 'err' : string };
+export type Result_1 = { 'ok' : bigint } |
+  { 'err' : string };
 export type Time = bigint;
 export interface Todo {
   'id' : bigint,
@@ -19,7 +23,7 @@ export interface Todo {
 }
 export interface _SERVICE {
   'createCategory' : ActorMethod<[string], bigint>,
-  'createNote' : ActorMethod<[string, string, [] | [bigint]], bigint>,
+  'createNote' : ActorMethod<[string, string, [] | [bigint]], Result_1>,
   'createTodo' : ActorMethod<[string, boolean], bigint>,
   'deleteCategory' : ActorMethod<[bigint], boolean>,
   'deleteNote' : ActorMethod<[bigint], boolean>,
@@ -28,7 +32,7 @@ export interface _SERVICE {
   'getNotes' : ActorMethod<[], Array<Note>>,
   'getTodos' : ActorMethod<[], Array<Todo>>,
   'updateCategory' : ActorMethod<[bigint, string], boolean>,
-  'updateNote' : ActorMethod<[bigint, string, string, [] | [bigint]], boolean>,
+  'updateNote' : ActorMethod<[bigint, string, string, [] | [bigint]], Result>,
   'updateTodo' : ActorMethod<[bigint, string, boolean], boolean>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;

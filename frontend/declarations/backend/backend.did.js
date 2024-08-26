@@ -1,4 +1,5 @@
 export const idlFactory = ({ IDL }) => {
+  const Result_1 = IDL.Variant({ 'ok' : IDL.Nat, 'err' : IDL.Text });
   const Category = IDL.Record({ 'id' : IDL.Nat, 'name' : IDL.Text });
   const Time = IDL.Int;
   const Note = IDL.Record({
@@ -14,11 +15,12 @@ export const idlFactory = ({ IDL }) => {
     'createdAt' : Time,
     'completed' : IDL.Bool,
   });
+  const Result = IDL.Variant({ 'ok' : IDL.Bool, 'err' : IDL.Text });
   return IDL.Service({
     'createCategory' : IDL.Func([IDL.Text], [IDL.Nat], []),
     'createNote' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Opt(IDL.Nat)],
-        [IDL.Nat],
+        [Result_1],
         [],
       ),
     'createTodo' : IDL.Func([IDL.Text, IDL.Bool], [IDL.Nat], []),
@@ -31,7 +33,7 @@ export const idlFactory = ({ IDL }) => {
     'updateCategory' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Bool], []),
     'updateNote' : IDL.Func(
         [IDL.Nat, IDL.Text, IDL.Text, IDL.Opt(IDL.Nat)],
-        [IDL.Bool],
+        [Result],
         [],
       ),
     'updateTodo' : IDL.Func([IDL.Nat, IDL.Text, IDL.Bool], [IDL.Bool], []),

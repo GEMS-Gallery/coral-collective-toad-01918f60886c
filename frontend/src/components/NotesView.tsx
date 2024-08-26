@@ -31,12 +31,16 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
 
   const handleSubmit = async () => {
     try {
-      await backend.createNote(title, content, categoryId);
-      onUpdate();
-      handleClose();
-      setTitle('');
-      setContent('');
-      setCategoryId(null);
+      const result = await backend.createNote(title, content, categoryId ? categoryId : undefined);
+      if ('ok' in result) {
+        onUpdate();
+        handleClose();
+        setTitle('');
+        setContent('');
+        setCategoryId(null);
+      } else {
+        console.error('Error creating note:', result.err);
+      }
     } catch (error) {
       console.error('Error creating note:', error);
     }

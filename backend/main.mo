@@ -46,34 +46,75 @@ actor {
   var todoIdCounter : Nat = 0;
 
   // Note management
-  public func createNote(title: Text, content: Text, categoryId: ?Nat) : async Nat {
-    noteIdCounter += 1;
-    let note : Note = {
-      id = noteIdCounter;
-      title = title;
-      content = content;
-      categoryId = categoryId;
-      createdAt = Time.now();
-    };
-    noteStorage.put(noteIdCounter, note);
-    noteIdCounter
-  };
-
-  public func updateNote(id: Nat, title: Text, content: Text, categoryId: ?Nat) : async Bool {
-    switch (noteStorage.get(id)) {
-      case (null) { false };
-      case (?existingNote) {
-        let updatedNote : Note = {
-          id = existingNote.id;
+  public func createNote(title: Text, content: Text, categoryId: ?Nat) : async Result.Result<Nat, Text> {
+    switch (categoryId) {
+      case (null) {
+        noteIdCounter += 1;
+        let note : Note = {
+          id = noteIdCounter;
           title = title;
           content = content;
-          categoryId = categoryId;
-          createdAt = existingNote.createdAt;
+          categoryId = null;
+          createdAt = Time.now();
         };
-        noteStorage.put(id, updatedNote);
-        true
+        noteStorage.put(noteIdCounter, note);
+        #ok(noteIdCounter)
       };
-    }
+      case (?id) {
+        switch (categoryStorage.get(id)) {
+          case (null) { #err("Category not found") };
+          case (_) {
+            noteIdCounter += 1;
+            let note : Note = {
+              id = noteIdCounter;
+              title = title;
+              content = content;
+              categoryId = ?id;
+              createdAt = Time.now();
+            };
+            noteStorage.put(noteIdCounter, note);
+            #ok(noteIdCounter)
+          };
+        };
+      };
+    };
+  };
+
+  public func updateNote(id: Nat, title: Text, content: Text, categoryId: ?Nat) : async Result.Result<Bool, Text> {
+    switch (noteStorage.get(id)) {
+      case (null) { #err("Note not found") };
+      case (?existingNote) {
+        switch (categoryId) {
+          case (null) {
+            let updatedNote : Note = {
+              id = existingNote.id;
+              title = title;
+              content = content;
+              categoryId = null;
+              createdAt = existingNote.createdAt;
+            };
+            noteStorage.put(id, updatedNote);
+            #ok(true)
+          };
+          case (?catId) {
+            switch (categoryStorage.get(catId)) {
+              case (null) { #err("Category not found") };
+              case (_) {
+                let updatedNote : Note = {
+                  id = existingNote.id;
+                  title = title;
+                  content = content;
+                  categoryId = ?catId;
+                  createdAt = existingNote.createdAt;
+                };
+                noteStorage.put(id, updatedNote);
+                #ok(true)
+              };
+            };
+          };
+        };
+      };
+    };
   };
 
   public func deleteNote(id: Nat) : async Bool {

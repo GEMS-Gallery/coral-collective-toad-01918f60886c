@@ -6,6 +6,16 @@ type Todo =
    title: text;
  };
 type Time = int;
+type Result_1 = 
+ variant {
+   err: text;
+   ok: nat;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: bool;
+ };
 type Note = 
  record {
    categoryId: opt nat;
@@ -21,7 +31,7 @@ type Category =
  };
 service : {
   createCategory: (text) -> (nat);
-  createNote: (text, text, opt nat) -> (nat);
+  createNote: (text, text, opt nat) -> (Result_1);
   createTodo: (text, bool) -> (nat);
   deleteCategory: (nat) -> (bool);
   deleteNote: (nat) -> (bool);
@@ -30,6 +40,6 @@ service : {
   getNotes: () -> (vec Note) query;
   getTodos: () -> (vec Todo) query;
   updateCategory: (nat, text) -> (bool);
-  updateNote: (nat, text, text, opt nat) -> (bool);
+  updateNote: (nat, text, text, opt nat) -> (Result);
   updateTodo: (nat, text, bool) -> (bool);
 }
