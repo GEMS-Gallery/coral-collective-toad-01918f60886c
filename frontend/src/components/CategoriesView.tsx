@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { List, ListItem, ListItemText, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { List, ListItem, ListItemText, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from '@mui/material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { backend } from '../../declarations/backend';
 
 interface Category {
@@ -15,18 +16,45 @@ interface CategoriesViewProps {
 const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate }) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
+  const [editingCategoryId, setEditingCategoryId] = useState<bigint | null>(null);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setEditingCategoryId(null);
+    setName('');
+  };
 
   const handleSubmit = async () => {
     try {
-      await backend.createCategory(name);
+      if (editingCategoryId) {
+        await backend.updateCategory(editingCategoryId, name);
+      } else {
+        await backend.createCategory(name);
+      }
       onUpdate();
       handleClose();
-      setName('');
     } catch (error) {
-      console.error('Error creating category:', error);
+      console.error('Error submitting category:', error);
+    }
+  };
+
+  const handleEdit = (category: Category) => {
+    setEditingCategoryId(category.id);
+    setName(category.name);
+    setOpen(true);
+  };
+
+  const handleDelete = async (id: bigint) => {
+    try {
+      const result = await backend.deleteCategory(id);
+      if (result) {
+        onUpdate();
+      } else {
+        console.error('Error deleting category');
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error);
     }
   };
 
@@ -39,11 +67,17 @@ const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate })
         {categories.map((category) => (
           <ListItem key={category.id.toString()}>
             <ListItemText primary={category.name} />
+            <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(category)}>
+              <EditIcon />
+            </IconButton>
+            <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(category.id)}>
+              <DeleteIcon />
+            </IconButton>
           </ListItem>
         ))}
       </List>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add New Category</DialogTitle>
+        <DialogTitle>{editingCategoryId ? 'Edit Category' : 'Add New Category'}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -56,7 +90,7 @@ const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate })
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Add</Button>
+          <Button onClick={handleSubmit}>{editingCategoryId ? 'Update' : 'Add'}</Button>
         </DialogActions>
       </Dialog>
     </div>

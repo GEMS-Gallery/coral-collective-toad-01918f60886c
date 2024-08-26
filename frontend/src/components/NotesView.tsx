@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Grid, Card, CardContent, Typography, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Grid, Card, CardContent, Typography, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel, IconButton } from '@mui/material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { backend } from '../../declarations/backend';
 
 interface Note {
@@ -25,24 +26,59 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryId, setCategoryId] = useState<bigint | null>(null);
+  const [editingNoteId, setEditingNoteId] = useState<bigint | null>(null);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setEditingNoteId(null);
+    setTitle('');
+    setContent('');
+    setCategoryId(null);
+  };
 
   const handleSubmit = async () => {
     try {
-      const result = await backend.createNote(title, content, categoryId ? categoryId : undefined);
-      if ('ok' in result) {
-        onUpdate();
-        handleClose();
-        setTitle('');
-        setContent('');
-        setCategoryId(null);
+      if (editingNoteId) {
+        const result = await backend.updateNote(editingNoteId, title, content, categoryId ? categoryId : undefined);
+        if ('ok' in result) {
+          onUpdate();
+          handleClose();
+        } else {
+          console.error('Error updating note:', result.err);
+        }
       } else {
-        console.error('Error creating note:', result.err);
+        const result = await backend.createNote(title, content, categoryId ? categoryId : undefined);
+        if ('ok' in result) {
+          onUpdate();
+          handleClose();
+        } else {
+          console.error('Error creating note:', result.err);
+        }
       }
     } catch (error) {
-      console.error('Error creating note:', error);
+      console.error('Error submitting note:', error);
+    }
+  };
+
+  const handleEdit = (note: Note) => {
+    setEditingNoteId(note.id);
+    setTitle(note.title);
+    setContent(note.content);
+    setCategoryId(note.categoryId);
+    setOpen(true);
+  };
+
+  const handleDelete = async (id: bigint) => {
+    try {
+      const result = await backend.deleteNote(id);
+      if (result) {
+        onUpdate();
+      } else {
+        console.error('Error deleting note');
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
     }
   };
 
@@ -56,18 +92,28 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
           <Grid item xs={12} sm={6} md={4} key={note.id.toString()}>
             <Card>
               <CardContent>
-                <Typography variant="h6">{note.title}</Typography>
-                <Typography variant="body2">{note.content}</Typography>
-                <Typography variant="caption">
+                <Typography variant="h6" component="div" gutterBottom>
+                  {note.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {note.content}
+                </Typography>
+                <Typography variant="caption" display="block" gutterBottom>
                   Category: {categories.find(c => c.id === note.categoryId)?.name || 'Uncategorized'}
                 </Typography>
+                <IconButton aria-label="edit" onClick={() => handleEdit(note)}>
+                  <EditIcon />
+                </IconButton>
+                <IconButton aria-label="delete" onClick={() => handleDelete(note.id)}>
+                  <DeleteIcon />
+                </IconButton>
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add New Note</DialogTitle>
+        <DialogTitle>{editingNoteId ? 'Edit Note' : 'Add New Note'}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -103,7 +149,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Add</Button>
+          <Button onClick={handleSubmit}>{editingNoteId ? 'Update' : 'Add'}</Button>
         </DialogActions>
       </Dialog>
     </div>

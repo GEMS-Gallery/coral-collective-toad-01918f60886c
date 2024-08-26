@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { List, ListItem, ListItemText, ListItemSecondaryAction, Checkbox, IconButton, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { backend } from '../../declarations/backend';
 
 interface Todo {
@@ -17,18 +17,26 @@ interface TodoViewProps {
 const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
+  const [editingTodoId, setEditingTodoId] = useState<bigint | null>(null);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setEditingTodoId(null);
+    setTitle('');
+  };
 
   const handleSubmit = async () => {
     try {
-      await backend.createTodo(title, false);
+      if (editingTodoId) {
+        await backend.updateTodo(editingTodoId, title, todos.find(t => t.id === editingTodoId)?.completed || false);
+      } else {
+        await backend.createTodo(title, false);
+      }
       onUpdate();
       handleClose();
-      setTitle('');
     } catch (error) {
-      console.error('Error creating todo:', error);
+      console.error('Error submitting todo:', error);
     }
   };
 
@@ -39,6 +47,12 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
     } catch (error) {
       console.error('Error updating todo:', error);
     }
+  };
+
+  const handleEdit = (todo: Todo) => {
+    setEditingTodoId(todo.id);
+    setTitle(todo.title);
+    setOpen(true);
   };
 
   const handleDelete = async (id: bigint) => {
@@ -65,6 +79,9 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
             />
             <ListItemText primary={todo.title} />
             <ListItemSecondaryAction>
+              <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(todo)}>
+                <EditIcon />
+              </IconButton>
               <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(todo.id)}>
                 <DeleteIcon />
               </IconButton>
@@ -73,7 +90,7 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
         ))}
       </List>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add New Todo</DialogTitle>
+        <DialogTitle>{editingTodoId ? 'Edit Todo' : 'Add New Todo'}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -86,7 +103,7 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Add</Button>
+          <Button onClick={handleSubmit}>{editingTodoId ? 'Update' : 'Add'}</Button>
         </DialogActions>
       </Dialog>
     </div>
