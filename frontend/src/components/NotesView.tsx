@@ -91,6 +91,12 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
     }
   };
 
+  const getCategoryName = (categoryId: number | null) => {
+    if (categoryId === null) return 'Uncategorized';
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.name : 'Uncategorized';
+  };
+
   return (
     <div>
       <Button variant="contained" color="primary" onClick={handleOpen}>
@@ -108,7 +114,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
                   {note.content}
                 </Typography>
                 <Typography variant="caption" display="block" gutterBottom>
-                  Category: {categories.find(c => c.id === note.categoryId)?.name || 'Uncategorized'}
+                  Category: {getCategoryName(note.categoryId)}
                 </Typography>
                 <IconButton aria-label="edit" onClick={() => handleEdit(note)}>
                   <EditIcon />

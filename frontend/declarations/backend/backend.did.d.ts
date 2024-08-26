@@ -10,9 +10,7 @@ export interface Note {
   'content' : string,
   'createdAt' : Time,
 }
-export type Result = { 'ok' : boolean } |
-  { 'err' : string };
-export type Result_1 = { 'ok' : bigint } |
+export type Result = { 'ok' : Note } |
   { 'err' : string };
 export type Time = bigint;
 export interface Todo {
@@ -23,7 +21,7 @@ export interface Todo {
 }
 export interface _SERVICE {
   'createCategory' : ActorMethod<[string], bigint>,
-  'createNote' : ActorMethod<[string, string, [] | [bigint]], Result_1>,
+  'createNote' : ActorMethod<[string, string, [] | [bigint]], Result>,
   'createTodo' : ActorMethod<[string, boolean], bigint>,
   'deleteCategory' : ActorMethod<[bigint], boolean>,
   'deleteNote' : ActorMethod<[bigint], boolean>,

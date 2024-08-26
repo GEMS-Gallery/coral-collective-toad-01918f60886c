@@ -46,7 +46,7 @@ actor {
   var todoIdCounter : Nat = 0;
 
   // Note management
-  public func createNote(title: Text, content: Text, categoryId: ?Nat) : async Result.Result<Nat, Text> {
+  public func createNote(title: Text, content: Text, categoryId: ?Nat) : async Result.Result<Note, Text> {
     switch (categoryId) {
       case (null) {
         noteIdCounter += 1;
@@ -58,7 +58,7 @@ actor {
           createdAt = Time.now();
         };
         noteStorage.put(noteIdCounter, note);
-        #ok(noteIdCounter)
+        #ok(note)
       };
       case (?id) {
         switch (categoryStorage.get(id)) {
@@ -73,14 +73,14 @@ actor {
               createdAt = Time.now();
             };
             noteStorage.put(noteIdCounter, note);
-            #ok(noteIdCounter)
+            #ok(note)
           };
         };
       };
     };
   };
 
-  public func updateNote(id: Nat, title: Text, content: Text, categoryId: ?Nat) : async Result.Result<Bool, Text> {
+  public func updateNote(id: Nat, title: Text, content: Text, categoryId: ?Nat) : async Result.Result<Note, Text> {
     switch (noteStorage.get(id)) {
       case (null) { #err("Note not found") };
       case (?existingNote) {
@@ -94,7 +94,7 @@ actor {
               createdAt = existingNote.createdAt;
             };
             noteStorage.put(id, updatedNote);
-            #ok(true)
+            #ok(updatedNote)
           };
           case (?catId) {
             switch (categoryStorage.get(catId)) {
@@ -108,7 +108,7 @@ actor {
                   createdAt = existingNote.createdAt;
                 };
                 noteStorage.put(id, updatedNote);
-                #ok(true)
+                #ok(updatedNote)
               };
             };
           };

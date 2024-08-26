@@ -6,15 +6,10 @@ type Todo =
    title: text;
  };
 type Time = int;
-type Result_1 = 
- variant {
-   err: text;
-   ok: nat;
- };
 type Result = 
  variant {
    err: text;
-   ok: bool;
+   ok: Note;
  };
 type Note = 
  record {
@@ -31,7 +26,7 @@ type Category =
  };
 service : {
   createCategory: (text) -> (nat);
-  createNote: (text, text, opt nat) -> (Result_1);
+  createNote: (text, text, opt nat) -> (Result);
   createTodo: (text, bool) -> (nat);
   deleteCategory: (nat) -> (bool);
   deleteNote: (nat) -> (bool);
