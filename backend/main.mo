@@ -84,35 +84,15 @@ actor {
     switch (noteStorage.get(id)) {
       case (null) { #err("Note not found") };
       case (?existingNote) {
-        switch (categoryId) {
-          case (null) {
-            let updatedNote : Note = {
-              id = existingNote.id;
-              title = title;
-              content = content;
-              categoryId = null;
-              createdAt = existingNote.createdAt;
-            };
-            noteStorage.put(id, updatedNote);
-            #ok(updatedNote)
-          };
-          case (?catId) {
-            switch (categoryStorage.get(catId)) {
-              case (null) { #err("Category not found") };
-              case (_) {
-                let updatedNote : Note = {
-                  id = existingNote.id;
-                  title = title;
-                  content = content;
-                  categoryId = ?catId;
-                  createdAt = existingNote.createdAt;
-                };
-                noteStorage.put(id, updatedNote);
-                #ok(updatedNote)
-              };
-            };
-          };
+        let updatedNote : Note = {
+          id = existingNote.id;
+          title = title;
+          content = content;
+          categoryId = categoryId;
+          createdAt = existingNote.createdAt;
         };
+        noteStorage.put(id, updatedNote);
+        #ok(updatedNote)
       };
     };
   };
