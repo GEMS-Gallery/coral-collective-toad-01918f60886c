@@ -28,7 +28,7 @@ const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate })
   const handleSubmit = async () => {
     try {
       if (editingCategoryId) {
-        await backend.updateCategory(editingCategoryId, name);
+        await backend.updateCategory(Number(editingCategoryId), name);
       } else {
         await backend.createCategory(name);
       }
@@ -47,7 +47,7 @@ const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate })
 
   const handleDelete = async (id: bigint) => {
     try {
-      const result = await backend.deleteCategory(id);
+      const result = await backend.deleteCategory(Number(id));
       if (result) {
         onUpdate();
       } else {

@@ -40,7 +40,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
   const handleSubmit = async () => {
     try {
       if (editingNoteId) {
-        const result = await backend.updateNote(editingNoteId, title, content, categoryId ? categoryId : undefined);
+        const result = await backend.updateNote(Number(editingNoteId), title, content, categoryId ? Number(categoryId) : null);
         if ('ok' in result) {
           onUpdate();
           handleClose();
@@ -48,7 +48,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
           console.error('Error updating note:', result.err);
         }
       } else {
-        const result = await backend.createNote(title, content, categoryId ? categoryId : undefined);
+        const result = await backend.createNote(title, content, categoryId ? Number(categoryId) : null);
         if ('ok' in result) {
           onUpdate();
           handleClose();
@@ -71,7 +71,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
 
   const handleDelete = async (id: bigint) => {
     try {
-      const result = await backend.deleteNote(id);
+      const result = await backend.deleteNote(Number(id));
       if (result) {
         onUpdate();
       } else {

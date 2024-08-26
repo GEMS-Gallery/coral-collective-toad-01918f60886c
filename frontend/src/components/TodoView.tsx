@@ -29,7 +29,7 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
   const handleSubmit = async () => {
     try {
       if (editingTodoId) {
-        await backend.updateTodo(editingTodoId, title, todos.find(t => t.id === editingTodoId)?.completed || false);
+        await backend.updateTodo(Number(editingTodoId), title, todos.find(t => t.id === editingTodoId)?.completed || false);
       } else {
         await backend.createTodo(title, false);
       }
@@ -42,7 +42,7 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
 
   const handleToggle = async (id: bigint, completed: boolean) => {
     try {
-      await backend.updateTodo(id, todos.find(t => t.id === id)?.title || '', !completed);
+      await backend.updateTodo(Number(id), todos.find(t => t.id === id)?.title || '', !completed);
       onUpdate();
     } catch (error) {
       console.error('Error updating todo:', error);
@@ -57,7 +57,7 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
 
   const handleDelete = async (id: bigint) => {
     try {
-      await backend.deleteTodo(id);
+      await backend.deleteTodo(Number(id));
       onUpdate();
     } catch (error) {
       console.error('Error deleting todo:', error);
