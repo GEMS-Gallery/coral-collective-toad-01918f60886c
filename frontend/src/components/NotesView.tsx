@@ -44,7 +44,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
           editingNoteId,
           title,
           content,
-          categoryId
+          categoryId ? [categoryId] : []
         );
         if ('ok' in result) {
           onUpdate();
@@ -56,7 +56,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
         const result = await backend.createNote(
           title,
           content,
-          categoryId
+          categoryId ? [categoryId] : []
         );
         if ('ok' in result) {
           onUpdate();
