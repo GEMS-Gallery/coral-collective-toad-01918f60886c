@@ -4,7 +4,7 @@ import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { backend } from '../../declarations/backend';
 
 interface Todo {
-  id: bigint;
+  id: number;
   title: string;
   completed: boolean;
 }
@@ -17,7 +17,7 @@ interface TodoViewProps {
 const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
-  const [editingTodoId, setEditingTodoId] = useState<bigint | null>(null);
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -29,7 +29,7 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
   const handleSubmit = async () => {
     try {
       if (editingTodoId) {
-        await backend.updateTodo(Number(editingTodoId), title, todos.find(t => t.id === editingTodoId)?.completed || false);
+        await backend.updateTodo(editingTodoId, title, todos.find(t => t.id === editingTodoId)?.completed || false);
       } else {
         await backend.createTodo(title, false);
       }
@@ -40,9 +40,9 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
     }
   };
 
-  const handleToggle = async (id: bigint, completed: boolean) => {
+  const handleToggle = async (id: number, completed: boolean) => {
     try {
-      await backend.updateTodo(Number(id), todos.find(t => t.id === id)?.title || '', !completed);
+      await backend.updateTodo(id, todos.find(t => t.id === id)?.title || '', !completed);
       onUpdate();
     } catch (error) {
       console.error('Error updating todo:', error);
@@ -55,9 +55,9 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
     setOpen(true);
   };
 
-  const handleDelete = async (id: bigint) => {
+  const handleDelete = async (id: number) => {
     try {
-      await backend.deleteTodo(Number(id));
+      await backend.deleteTodo(id);
       onUpdate();
     } catch (error) {
       console.error('Error deleting todo:', error);
@@ -71,7 +71,7 @@ const TodoView: React.FC<TodoViewProps> = ({ todos, onUpdate }) => {
       </Button>
       <List>
         {todos.map((todo) => (
-          <ListItem key={todo.id.toString()}>
+          <ListItem key={todo.id}>
             <Checkbox
               edge="start"
               checked={todo.completed}

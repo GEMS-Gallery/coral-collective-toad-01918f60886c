@@ -4,7 +4,7 @@ import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { backend } from '../../declarations/backend';
 
 interface Category {
-  id: bigint;
+  id: number;
   name: string;
 }
 
@@ -16,7 +16,7 @@ interface CategoriesViewProps {
 const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate }) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [editingCategoryId, setEditingCategoryId] = useState<bigint | null>(null);
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -28,7 +28,7 @@ const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate })
   const handleSubmit = async () => {
     try {
       if (editingCategoryId) {
-        await backend.updateCategory(Number(editingCategoryId), name);
+        await backend.updateCategory(editingCategoryId, name);
       } else {
         await backend.createCategory(name);
       }
@@ -45,9 +45,9 @@ const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate })
     setOpen(true);
   };
 
-  const handleDelete = async (id: bigint) => {
+  const handleDelete = async (id: number) => {
     try {
-      const result = await backend.deleteCategory(Number(id));
+      const result = await backend.deleteCategory(id);
       if (result) {
         onUpdate();
       } else {
@@ -65,7 +65,7 @@ const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onUpdate })
       </Button>
       <List>
         {categories.map((category) => (
-          <ListItem key={category.id.toString()}>
+          <ListItem key={category.id}>
             <ListItemText primary={category.name} />
             <IconButton edge="end" aria-label="edit" onClick={() => handleEdit(category)}>
               <EditIcon />

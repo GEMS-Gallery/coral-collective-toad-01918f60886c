@@ -4,14 +4,14 @@ import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { backend } from '../../declarations/backend';
 
 interface Note {
-  id: bigint;
+  id: number;
   title: string;
   content: string;
-  categoryId: bigint | null;
+  categoryId: number | null;
 }
 
 interface Category {
-  id: bigint;
+  id: number;
   name: string;
 }
 
@@ -25,8 +25,8 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [categoryId, setCategoryId] = useState<bigint | null>(null);
-  const [editingNoteId, setEditingNoteId] = useState<bigint | null>(null);
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [editingNoteId, setEditingNoteId] = useState<number | null>(null);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -40,7 +40,12 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
   const handleSubmit = async () => {
     try {
       if (editingNoteId) {
-        const result = await backend.updateNote(Number(editingNoteId), title, content, categoryId ? Number(categoryId) : null);
+        const result = await backend.updateNote(
+          editingNoteId,
+          title,
+          content,
+          categoryId
+        );
         if ('ok' in result) {
           onUpdate();
           handleClose();
@@ -48,7 +53,11 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
           console.error('Error updating note:', result.err);
         }
       } else {
-        const result = await backend.createNote(title, content, categoryId ? Number(categoryId) : null);
+        const result = await backend.createNote(
+          title,
+          content,
+          categoryId
+        );
         if ('ok' in result) {
           onUpdate();
           handleClose();
@@ -69,9 +78,9 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
     setOpen(true);
   };
 
-  const handleDelete = async (id: bigint) => {
+  const handleDelete = async (id: number) => {
     try {
-      const result = await backend.deleteNote(Number(id));
+      const result = await backend.deleteNote(id);
       if (result) {
         onUpdate();
       } else {
@@ -89,7 +98,7 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
       </Button>
       <Grid container spacing={2} style={{ marginTop: '20px' }}>
         {notes.map((note) => (
-          <Grid item xs={12} sm={6} md={4} key={note.id.toString()}>
+          <Grid item xs={12} sm={6} md={4} key={note.id}>
             <Card>
               <CardContent>
                 <Typography variant="h6" component="div" gutterBottom>
@@ -135,12 +144,12 @@ const NotesView: React.FC<NotesViewProps> = ({ notes, categories, onUpdate }) =>
           <FormControl fullWidth margin="dense">
             <InputLabel>Category</InputLabel>
             <Select
-              value={categoryId ? categoryId.toString() : ''}
-              onChange={(e) => setCategoryId(e.target.value ? BigInt(e.target.value) : null)}
+              value={categoryId !== null ? categoryId : ''}
+              onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
             >
               <MenuItem value="">Uncategorized</MenuItem>
               {categories.map((category) => (
-                <MenuItem key={category.id.toString()} value={category.id.toString()}>
+                <MenuItem key={category.id} value={category.id}>
                   {category.name}
                 </MenuItem>
               ))}
